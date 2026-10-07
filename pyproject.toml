@@ -1,0 +1,17 @@
+[project]
+name = "mini-pampas"
+version = "0.1.0"
+description = "Mini-Prototype AMP Autonomous (Driving) System"
+readme = "README.md"
+authors = [
+    { name = "oasjs", email = "oasjs@proton.me" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+mini-pampas = "mini_pampas:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
