@@ -78,6 +78,14 @@ LiDAR (/scan) → Perception (/perception/cones) → Planning (/planning/target_
 ├── pyproject.toml
 ├── README.md
 └── src
+    ├── mini_pampas_msgs      # custom message definitions (ament_cmake)
+    │   ├── CMakeLists.txt
+    │   ├── package.xml
+    │   └── msg
+    │       ├── Cone.msg
+    │       ├── ConeArray.msg
+    │       ├── DriveCommand.msg
+    │       └── WheelSpeed.msg
     └── mini_pampas
         ├── bringup       # launch files, starts all nodes together
         ├── control       # steering + throttle
@@ -85,6 +93,12 @@ LiDAR (/scan) → Perception (/perception/cones) → Planning (/planning/target_
         ├── perception    # LiDAR → cone clusters
         ├── planning      # cone clusters → target point
         └── sensors       # hall effect wheel speed, hardware interfacing
+```
+ 
+Messages live in their own `ament_cmake` package (required by ROS2 for interface generation), separate from the Python packages. Any package using them needs `<depend>mini_pampas_msgs</depend>` in its `package.xml`:
+ 
+```python
+from mini_pampas_msgs.msg import Cone, ConeArray, DriveCommand, WheelSpeed
 ```
 
 ### Topic Interfaces
