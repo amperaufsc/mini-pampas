@@ -1,0 +1,14 @@
+# Linux, Wayland session (keeps the XWayland socket as a fallback for xcb apps).
+services:
+  mini-pampas:
+    network_mode: host                  # Needed for ROS nodes
+    environment:
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=/tmp/xdg
+      - DISPLAY=${DISPLAY}
+      - QT_QPA_PLATFORM=wayland;xcb
+    volumes:
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/xdg/${WAYLAND_DISPLAY}
+      - /tmp/.X11-unix:/tmp/.X11-unix   # For XWayland
+    devices:
+      - /dev/dri:/dev/dri

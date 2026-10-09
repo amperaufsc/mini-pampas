@@ -1,8 +1,11 @@
+# Base config, OS-neutral. Combine with ONE display override:
+#   compose.x11.yml      Linux on X11 (also works on Wayland via XWayland)
+#   compose.wayland.yml  Linux on Wayland
+#   compose.wsl.yml      Windows via WSL2 + WSLg
 services:
-  mini-pamas:
+  mini-pampas:
     image: mini-pampas:latest
     container_name: mini-pampas
-    network_mode: host                  # Needed for ROS nodes
     stdin_open: true
     tty: true
 
@@ -10,21 +13,12 @@ services:
       context: .
 
     environment:
-      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
-      - XDG_RUNTIME_DIR=/tmp/xdg
-      - DISPLAY=${DISPLAY}
-      - QT_QPA_PLATFORM=wayland;xcb
       - ROS_DOMAIN_ID=67
       - TERM=${TERM:-xterm-256color}
       - COLORTERM=truecolor
 
     volumes:
-      - .:/mini-pampas
-      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/xdg/${WAYLAND_DISPLAY}
-      - /tmp/.X11-unix:/tmp/.X11-unix   #  For XWayland
-
-    devices:
-      - /dev/dri:/dev/dri
+      - .:/mini_pampas   # matches WORKDIR in the Dockerfile
 
     develop:
       watch:

@@ -12,33 +12,42 @@ Tracked on the **[Driverless Challenge](https://github.com/orgs/amperaufsc/proje
 
 To save you from needing to install all dependencies yourself and in order to keep the development environment the same for everyone, you'll use a [Docker container](https://www.docker.com/resources/what-container/) during your work on the project.
 
-This container will include all the [tooling](###tooling) you'll need.
-
-### Requirements
-
-- [Docker Engine](https://docs.docker.com/engine/install/)
-- [Docker Compose](https://docs.docker.com/desktop/setup/install/linux/)
-
-### Build & Run
-
-You can build and start the container with a single command:
-
+### Docker Setup
+ 
+The dev environment (ROS2 Humble, rqt, turtlesim, Foxglove, `uv`) ships as a Docker container, so nobody has to install ROS on their own machine. The compose config is a base file plus one display override for your OS.
+ 
+**Requirements:** Docker Engine (Linux) or Docker Desktop with WSL2 integration (Windows).
+ 
+**1. Pick your override** by creating a gitignored `.env` file next to `docker-compose.yml`:
+ 
+| Your setup | `.env` contents |
+|---|---|
+| Linux, X11 | `COMPOSE_FILE=docker-compose.yml:compose.x11.yml` |
+| Linux, Wayland | `COMPOSE_FILE=docker-compose.yml:compose.wayland.yml` |
+| Windows (WSL2 + WSLg) | `COMPOSE_FILE=docker-compose.yml:compose.wsl.yml` |
+ 
+**2. Allow the container to use your display** (X11 only, once per login):
+ 
 ```bash
-docker compose up
+xhost +SI:localuser:root
 ```
-
-To execute any command inside the container, run:
-
+ 
+**3. Start and enter the container:**
+ 
 ```bash
-docker compose exec mini-pampas <command>
-```
-
-For example, you can open an interactive terminal with:
-
-```bash
+docker compose up -d --build
 docker compose exec mini-pampas bash
 ```
-
+ 
+**Windows notes:**
+- Run everything from **inside the WSL2 distro**, with the repo cloned in the WSL filesystem (`~/...`), not under `/mnt/c` (slow, and file watching breaks).
+- There's no host networking on Windows, so `foxglove_bridge` is exposed on port 8765. Open `ws://localhost:8765` in Foxglove.
+**Quick GUI check:** inside the container, run `ros2 run turtlesim turtlesim_node`. If the window appears, your display setup works.
+ 
+**Troubleshooting:**
+- *`cannot open display` / Qt can't load the xcb plugin:* X11 users likely skipped the `xhost` step.
+- *No window on Wayland:* try the X11 override instead, which works through XWayland.
+- *Compose fails on `/dev/dri`:* you're using a Linux override on a machine without that device (e.g. WSL). Use the WSL override.
 
 ## Project description
 

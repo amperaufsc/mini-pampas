@@ -1,0 +1,14 @@
+# Linux, X11 session (also works on Wayland sessions through XWayland).
+# Run once per login on the host so the container (root) may use your display:
+#   xhost +SI:localuser:root
+services:
+  mini-pampas:
+    network_mode: host                  # Needed for ROS nodes
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_QPA_PLATFORM=xcb
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/dri:/dev/dri

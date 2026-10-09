@@ -1,0 +1,18 @@
+# Windows via WSL2 + WSLg. Run docker from INSIDE the WSL2 distro, with the repo
+# cloned in the WSL filesystem (~/...), not under /mnt/c.
+services:
+  mini-pampas:
+    # No host networking: on Windows it doesn't reach the Windows side reliably.
+    # Publish the Foxglove bridge port instead (open ws://localhost:8765 in Foxglove).
+    ports:
+      - "8765:8765"
+    environment:
+      - DISPLAY=:0
+      - WAYLAND_DISPLAY=wayland-0
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+      - QT_QPA_PLATFORM=wayland;xcb
+    volumes:
+      - /mnt/wslg:/mnt/wslg
+      - /mnt/wslg/.X11-unix:/tmp/.X11-unix
+    # No /dev/dri here: it doesn't exist under WSL2 (GPU is /dev/dxg) and
+    # compose would fail on the missing device.
