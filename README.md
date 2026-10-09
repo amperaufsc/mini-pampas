@@ -30,7 +30,7 @@ Tracked on the **[Driverless Challenge](https://github.com/orgs/amperaufsc/proje
 - **Steering servo:** [Absima S90MH — 9kg/25T JR metal gear servo](https://www.modelsport.co.uk/product/absima-s90mh-9kg-25t-jr-metal-gear-servo-381461). Standard 3-pin JR connector (signal / +V / GND — one cavity in the 4-slot housing is unused by design). Operating voltage 4.8–6.6V — **needs its own regulated supply**, not the raw battery. Positional servo, ~1000–2000µs PWM range centered at ~1500µs.
 - **Drive motor:** RC540 brushed motor on the front pair. Confirm whether an ESC is already present between battery/Pi and motor before assuming direct PWM control — a bare 540 only has 2 power leads.
 - **Perception sensor:** [RPLIDAR A1M8](https://www.slamtec.com/en/Lidar/A1) — 360° 2D line-scan LiDAR, 0.15–12m range, up to 8000 samples/sec, USB/UART. Driver: [rplidar_ros](https://github.com/Slamtec/rplidar_ros.git) (`ros2` branch).
-- **Compute:** Raspberry Pi 3.
+- **Compute:** [Raspberry Pi 4 Model B](https://www.raspberrypi.com/documentation/computers/processors.html#bcm2711).
 - **Battery:** Zippy Compact 3000mAh 4S1P 20C LiPo (~14.8V nominal, ~16.8V full charge).
 - **Mounting platform:** flat deck on top of the chassis for sensor + compute + battery.
 
@@ -38,11 +38,11 @@ Tracked on the **[Driverless Challenge](https://github.com/orgs/amperaufsc/proje
 
 **Mounting:** the LiDAR, Raspberry Pi, and battery must be **securely fixed** to the platform (standoffs/screws, straps, printed mounts, zip-tie anchors) — not just resting on it. Vibration and sharp turns will shift anything not properly mounted. Plan and test this early.
 
-## Track
+### Track
 
 The track is marked with **3D-printed miniature cones**, scaled to the crawler. Printing needs to happen early and in parallel with software work — perception tuning (size, shape, LiDAR reflectivity) depends on having real cones to test against, not mockups.
 
-## Architecture
+### Architecture
 
 ROS2 nodes communicating over topics, visualized live via [Foxglove Studio](https://foxglove.dev/) (`foxglove_bridge`) — the same pattern the full-size car's stack uses.
 
@@ -52,8 +52,8 @@ LiDAR (/scan) → Perception (/perception/cones) → Planning (/planning/target_
                                                                         Sensors (/sensors/wheel_speed)
 ```
 
-## Repository Structure
-
+### Repository Structure
+ 
 ```
 .
 ├── LICENSE
@@ -69,7 +69,7 @@ LiDAR (/scan) → Perception (/perception/cones) → Planning (/planning/target_
         └── sensors       # hall effect wheel speed, hardware interfacing
 ```
 
-## Topic Interfaces
+### Topic Interfaces
 
 | Topic | Type | Published by | Consumed by |
 |---|---|---|---|
@@ -79,24 +79,24 @@ LiDAR (/scan) → Perception (/perception/cones) → Planning (/planning/target_
 | `/cmd/drive` | steering angle + throttle (custom msg or `ackermann_msgs/AckermannDrive`) | `control` | motor/servo hardware interface |
 | `/sensors/wheel_speed` | `std_msgs/Float32` or custom (one per driven wheel) | `sensors` | `control` (optional closed-loop), telemetry |
 
-## Modules
+### Modules
 
-### `perception`
+#### `perception`
 LiDAR scan → cone cluster positions. A **spatial** problem only: filter scan range/FOV, cluster points (distance/angle-gap thresholding is sufficient), compute centroid + distance per cluster. Frame-to-frame smoothing is explicitly out of scope here — that's `planning`'s job.
 Verify early that the LiDAR's scan plane height actually intersects the cones given mounting height and cone size.
-Refs: [RPLIDAR A1M8 datasheet](https://www.slamtec.com/en/Lidar/A1) · [rplidar_ros](https://github.com/Slamtec/rplidar_ros.git) · [`sensor_msgs/LaserScan`](https://docs.ros.org/en/humble/p/sensor_msgs/interfaces/msg/LaserScan.html)
+Refs: [RPLIDAR A1M8 datasheet](https://download-en.slamtec.com/api/download/rplidar-a1m8-datasheet/3.2?lang=en) · [rplidar_ros](https://docs.ros.org/en/humble/p/rplidar_ros/index.html) · [`sensor_msgs/LaserScan`](https://docs.ros.org/en/humble/p/sensor_msgs/msg/LaserScan.html)
 
-### `planning`
+#### `planning`
 Cone positions → a single target point. The **temporal** half of the filtering split: smooth detections frame-to-frame (moving average/exponential smoothing), find the midpoint between left/right cone pairs, handle missing-cone edge cases (hold last valid point briefly).
-Refs: [`geometry_msgs/PointStamped`](https://docs.ros.org/en/humble/p/geometry_msgs/interfaces/msg/PointStamped.html) · midpoint/pure-pursuit path following
+Refs: [`geometry_msgs/PointStamped`](https://docs.ros.org/en/ros2_packages/humble/api/geometry_msgs/msg/PointStamped.html) · midpoint/pure-pursuit path following
 
-### `control`
+#### `control`
 Target point → steering + throttle. Front-only steering/traction means standard Ackermann/bicycle-model kinematics. Constant throttle is a fine baseline; closed-loop speed via hall sensors is a stretch goal.
 Refs: [Absima S90MH spec](https://www.modelsport.co.uk/product/absima-s90mh-9kg-25t-jr-metal-gear-servo-381461) · `RPi.GPIO`/`pigpio` for PWM output
 
-### `hardware integration` (+ sensors)
+#### `hardware integration` (+ sensors)
 Power, wiring, and mounting. Confirm motor/servo/ESC wiring, spec a BEC/UBEC for Pi + servo, get the LiDAR enumerating on the Pi, securely mount LiDAR/Pi/battery, wire hall effect sensors (one per driven wheel) with interrupt-based speed estimation into `/sensors/wheel_speed`. Document the wiring — this is the reference for next season.
-Refs: [Raspberry Pi 3 GPIO pinout](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio) · UBEC/BEC basics
+Refs: [Raspberry Pi 4 Datasheet](https://pip-assets.raspberrypi.com/categories/545-raspberry-pi-4-model-b/documents/RP-008248-DS-1-bcm2711-peripherals.pdf) · UBEC/BEC basics
 
 ## Getting Started
 
@@ -126,7 +126,7 @@ Each module is evaluated separately:
 - **Control:** smoothness, respecting steering/speed limits, response to path changes
 - **Sensors/Integration:** wiring safety/robustness, power stability under load, documentation quality
 
-## Deliverables
+### Deliverables
 
 1. Working code in your module, merged via the team's standard git/PR workflow.
 2. A presentation using the team's template: what you built, key decisions/trade-offs, challenges, what you'd improve.
