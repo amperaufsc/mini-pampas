@@ -1,0 +1,35 @@
+services:
+  mini-pamas:
+    image: mini-pampas:latest
+    container_name: mini-pampas
+    network_mode: host                  # Needed for ROS nodes
+    stdin_open: true
+    tty: true
+
+    build:
+      context: .
+
+    environment:
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=/tmp/xdg
+      - DISPLAY=${DISPLAY}
+      - QT_QPA_PLATFORM=wayland;xcb
+      - ROS_DOMAIN_ID=67
+      - TERM=${TERM:-xterm-256color}
+      - COLORTERM=truecolor
+
+    volumes:
+      - .:/mini-pampas
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/xdg/${WAYLAND_DISPLAY}
+      - /tmp/.X11-unix:/tmp/.X11-unix   #  For XWayland
+
+    devices:
+      - /dev/dri:/dev/dri
+
+    develop:
+      watch:
+        # Automatically rebuild on updates to these files
+        - action: rebuild
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock

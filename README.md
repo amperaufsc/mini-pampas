@@ -8,23 +8,41 @@ Tracked on the **[Driverless Challenge](https://github.com/orgs/amperaufsc/proje
 
 ---
 
-## Contents
+## Get started
 
-- [Hardware](#hardware)
-- [Track](#track)
-- [Architecture](#architecture)
-- [Repository Structure](#repository-structure)
-- [Topic Interfaces](#topic-interfaces)
-- [Modules](#modules)
-- [Getting Started](#getting-started)
-- [Tooling](#tooling)
-- [Evaluation](#evaluation)
-- [Deliverables](#deliverables)
-- [Timeline](#timeline)
+To save you from needing to install all dependencies yourself and in order to keep the development environment the same for everyone, you'll use a [Docker container](https://www.docker.com/resources/what-container/) during your work on the project.
 
----
+This container will include all the [tooling](###tooling) you'll need.
 
-## Hardware
+### Requirements
+
+- [Docker Engine](https://docs.docker.com/engine/install/)
+- [Docker Compose](https://docs.docker.com/desktop/setup/install/linux/)
+
+### Build & Run
+
+You can build and start the container with a single command:
+
+```bash
+docker compose up
+```
+
+To execute any command inside the container, run:
+
+```bash
+docker compose exec mini-pampas <command>
+```
+
+For example, you can open an interactive terminal with:
+
+```bash
+docker compose exec mini-pampas bash
+```
+
+
+## Project description
+
+### Hardware
 
 - **Drivetrain:** 4 wheels, front and back pairs originally each powered by an RC540 brushed motor with angular steering servos (servo rotates an arm connected to a bar that pushes/pulls the wheel pair sideways — bellcrank-style linkage). **Only the front pair is used for steering and traction** in this project; the rear pair is passive. Standard Ackermann-style kinematics apply.
 - **Steering servo:** [Absima S90MH — 9kg/25T JR metal gear servo](https://www.modelsport.co.uk/product/absima-s90mh-9kg-25t-jr-metal-gear-servo-381461). Standard 3-pin JR connector (signal / +V / GND — one cavity in the 4-slot housing is unused by design). Operating voltage 4.8–6.6V — **needs its own regulated supply**, not the raw battery. Positional servo, ~1000–2000µs PWM range centered at ~1500µs.
@@ -98,26 +116,19 @@ Refs: [Absima S90MH spec](https://www.modelsport.co.uk/product/absima-s90mh-9kg-
 Power, wiring, and mounting. Confirm motor/servo/ESC wiring, spec a BEC/UBEC for Pi + servo, get the LiDAR enumerating on the Pi, securely mount LiDAR/Pi/battery, wire hall effect sensors (one per driven wheel) with interrupt-based speed estimation into `/sensors/wheel_speed`. Document the wiring — this is the reference for next season.
 Refs: [Raspberry Pi 4 Datasheet](https://pip-assets.raspberrypi.com/categories/545-raspberry-pi-4-model-b/documents/RP-008248-DS-1-bcm2711-peripherals.pdf) · UBEC/BEC basics
 
-## Getting Started
-
-```bash
-git clone <repo-url>
-cd mini_pampas
-uv sync
-colcon build
-source install/setup.bash
-ros2 launch mini_pampas bringup
-```
-
-> `uv` + `colcon` is not the standard ROS2 workflow — if dependency resolution fights with `colcon`/`ament_python`, fall back to a plain `venv` + `pip` setup and update this section accordingly.
-
-## Tooling
+### Tooling
 
 - **ROS2** (`rclpy`) for all nodes and topic interfaces.
 - **uv** for Python dependency management, `colcon build` for the ROS2 build.
 - **Foxglove Studio** for live visualization of point clouds, cone detections, target point, and drive commands during development and demos.
 
-## Evaluation
+**Attention!** When running Foxglove Studio inside the container, add the `--no-sandbox` flag, like so:
+
+```bash
+foxglove-studio --no-sandbox
+```
+
+### Evaluation
 
 Each module is evaluated separately:
 
@@ -132,16 +143,3 @@ Each module is evaluated separately:
 2. A presentation using the team's template: what you built, key decisions/trade-offs, challenges, what you'd improve.
 3. A recorded video presenting the project, archived for the team and next season's cohort.
 4. If the car completes a successful run: a live demo to the rest of the team.
-
-## Timeline
-
-| Week | Focus |
-|---|---|
-| 3 | Kickoff, architecture walkthrough, ROS2 intro, teleop milestone |
-| 4 | Module-specific foundations (wiring, kinematic model, LiDAR basics, path representation) |
-| 5 | ROS2 deep dive (TF2, bag files), perception clustering |
-| 6 | Perception → planning integration |
-| 7 | Planning → control integration, first closed-loop driving |
-| 8 | Full pipeline integration, first full lap attempt |
-| 9 | Polish, bug fixing, presentations prepared |
-| 10 | Buffer / deadline / live demo day |
