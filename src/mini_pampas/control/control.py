@@ -1,3 +1,5 @@
+import pigpio
+
 class Control:
     __THROTTLE_PIN = 4
     __THROTTLE_LIMIT_FREQUENCY = 20000
