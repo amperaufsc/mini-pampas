@@ -11,7 +11,7 @@ class Control:
     def turnOnThrottle(self):
         self.__throttle.turnOn(self.__pi)
 
-    def turnOnThrottle(self):
+    def turnOffThrottle(self):
         self.__throttle.turnOff(self.__pi)
 
     class ThrottleMotor:
