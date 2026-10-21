@@ -7,7 +7,9 @@ authors = [
     { name = "oasjs", email = "oasjs@proton.me" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "gpiozero>=2.0.1.post3",
+]
 
 [project.scripts]
 mini-pampas = "mini_pampas:main"
