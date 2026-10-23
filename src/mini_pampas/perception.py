@@ -3,8 +3,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import PoseArray
-# If your team wants ConeArray instead, replace the line above with:
-# from mini_pampas_msgs.msg import ConeArray
+
 
 
 class PerceptionNode(Node):
