@@ -19,7 +19,17 @@ At first I'll just send directly the **PWM signal** with dutycycle that matches 
 I'll use some techniques to smooth the lateral control of mini-pampas:
 
 - `Exponential moving average`: makes the servo rotate to just a fraction of the desired angle.
+```python
+tau = 1.0 / (2.0 * math.pi * self.fc)
+alpha = dt / (tau + dt)
+self.filtered += alpha * (target - self.filtered)
+```
 
 - `Rate limiter`: limits the angular rate of the servo motor, limiting how fast it comes to the desired angle.
+```python
+max_step = self.v_max * dt  # degrees per cycle
+error = self.filtered - self.output
+self.output += max(-max_step, min(max_step, error))
+```
 
 With these two methods, the servo will make smooth turns to the desired angles.
