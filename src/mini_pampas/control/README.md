@@ -19,3 +19,23 @@ At first I'll just send directly the **PWM signal** with dutycycle that matches 
 ## gpiozero
 
 For the control of both steering and throttle motor, I'll be using **gpiozero library**. The gpiozero comes with classes for Motors ans Servos, with functions to control its angle or speed sending PWM signal with the needed dutycycle.
+
+### Smoothing steering control
+
+I'll use some techniques to smooth the lateral control of mini-pampas:
+
+- `Exponential moving average`: makes the servo rotate to just a fraction of the desired angle.
+```python
+tau = 1.0 / (2.0 * math.pi * self.fc)
+alpha = dt / (tau + dt)
+self.filtered += alpha * (target - self.filtered)
+```
+
+- `Rate limiter`: limits the angular rate of the servo motor, limiting how fast it comes to the desired angle.
+```python
+max_step = self.v_max * dt  # degrees per cycle
+error = self.filtered - self.output
+self.output += max(-max_step, min(max_step, error))
+```
+
+With these two methods, the servo will make smooth turns to the desired angles.
