@@ -16,6 +16,10 @@ For the steering control, we are using a servo with 1000-2000 us range, centered
 
 At first I'll just send directly the **PWM signal** with dutycycle that matches the angle setpoint given by planning project.
 
+## gpiozero
+
+For the control of both steering and throttle motor, I'll be using **gpiozero library**. The gpiozero comes with classes for Motors ans Servos, with functions to control its angle or speed sending PWM signal with the needed dutycycle.
+
 ### Smoothing steering control
 
 I'll use some techniques to smooth the lateral control of mini-pampas:
