@@ -30,6 +30,10 @@ The pytest library is a framework that makes the tests of codes easier. Using th
 
 The conftest.py is the file that configure what is necessary to run the tests, here that I'll define to always create pins and Output Devices as Mock Factories when running tests with pytest.
 
+### The tests
+
+To create a test, the file's name must start with 'test_' or end with '_test'. In the code, you declare the object you're working with and call functions in the same way you do when you are working normally, the difference is that you use `assert` to verify if the object worked the way you expect (e.g., the servo is with the defined angle or the motor is in the right speed). You can run the test on terminal with the command `pytest`.
+
 ### Smoothing steering control
 
 I'll use some techniques to smooth the lateral control of mini-pampas:
