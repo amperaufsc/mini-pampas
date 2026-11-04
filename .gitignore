@@ -1,1 +1,13 @@
 .env
+
+# ROS
+build/
+install/
+log/
+
+# IDE
+.vscode/
+.zed/
+
+# Python
+__pycache__/
