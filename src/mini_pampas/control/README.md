@@ -20,6 +20,20 @@ At first I'll just send directly the **PWM signal** with dutycycle that matches 
 
 For the control of both steering and throttle motor, I'll be using **gpiozero library**. The gpiozero comes with classes for Motors ans Servos, with functions to control its angle or speed sending PWM signal with the needed dutycycle.
 
+### Factories, Mock Factory and pytest
+
+The `factories` in gpiozero library is the way that the software talks with the hardware to do the control of the pin. In this project I'm gonna use the `Mock Facotry`. This factory creates a fake pin, allowing the user to realize tests of the pins and Output Devices without any real hardware.
+
+The pytest library is a framework that makes the tests of codes easier. Using the Mock Factory and pytest, I'm gonna write tests for each one of the classes in control project (Control, Throttle and Steering) and verify if all methods of its classes are working the way i expect.
+
+### conftest.py
+
+The conftest.py is the file that configure what is necessary to run the tests, here that I'll define to always create pins and Output Devices as Mock Factories when running tests with pytest.
+
+### The tests
+
+To create a test, the file's name must start with 'test_' or end with '_test'. In the code, you declare the object you're working with and call functions in the same way you do when you are working normally, the difference is that you use `assert` to verify if the object worked the way you expect (e.g., the servo is with the defined angle or the motor is in the right speed). You can run the test on terminal with the command `pytest`.
+
 ### Smoothing steering control
 
 I'll use some techniques to smooth the lateral control of mini-pampas:
