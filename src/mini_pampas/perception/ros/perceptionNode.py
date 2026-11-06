@@ -5,7 +5,7 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Pose, PoseArray
 
 # Import your detector class from File 1
-from .cone_detector import ConeDetector, DetectorConfig
+from .coneDetector import ConeDetector, DetectorConfig
 
 
 class PerceptionNode(Node):
