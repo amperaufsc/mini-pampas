@@ -12,8 +12,8 @@ class Control:
         self._front_motor = ThrottleMotor(Motor(front_motor_forward_pin, front_motor_backward_pin))
         self._back_motor = ThrottleMotor(Motor(back_motor_forward_pin, back_motor_backward_pin))
 
-        self._front_servo = SteeringMotor(AngularServo(front_servo_pin, min_angle=SERVO_ANGLE_MIN, max_angle=SERVO_ANGLE_MAX, min_pulse_width=SERVO_MIN_PULSE_WIDTH, max_pulse_width=SERVO_MAX_PULSE_WIDTH))
-        self._back_servo = SteeringMotor(AngularServo(back_servo_pin, min_angle=SERVO_ANGLE_MIN, max_angle=SERVO_ANGLE_MAX, min_pulse_width=SERVO_MIN_PULSE_WIDTH, max_pulse_width=SERVO_MAX_PULSE_WIDTH))
+        self._front_servo = SteeringMotor(AngularServo(front_servo_pin, min_angle=self.SERVO_ANGLE_MIN, max_angle=self.SERVO_ANGLE_MAX, min_pulse_width=self.SERVO_MIN_PULSE_WIDTH, max_pulse_width=self.SERVO_MAX_PULSE_WIDTH))
+        self._back_servo = SteeringMotor(AngularServo(back_servo_pin, min_angle=self.SERVO_ANGLE_MIN, max_angle=self.SERVO_ANGLE_MAX, min_pulse_width=self.SERVO_MIN_PULSE_WIDTH, max_pulse_width=self.SERVO_MAX_PULSE_WIDTH))
 
     def stop_car(self):
         """ Stops the two throttle motors """
