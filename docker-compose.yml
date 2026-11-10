@@ -8,9 +8,13 @@ services:
     container_name: mini-pampas
     stdin_open: true
     tty: true
+    privileged: true
 
     build:
       context: .
+
+    ports:
+      - "8765:8765"   # Foxglove Bridge WebSocket port
 
     environment:
       - ROS_DOMAIN_ID=67
@@ -19,6 +23,7 @@ services:
 
     volumes:
       - .:/mini_pampas   # matches WORKDIR in the Dockerfile
+      - /dev:/dev        # pass USB devices (LiDAR) dynamically into the container
 
     develop:
       watch:
