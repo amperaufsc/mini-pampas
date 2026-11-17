@@ -30,10 +30,10 @@ class Control:
         self._front_servo.set_angle(direction)
         self._back_servo.set_to_initial_angle()
 
-    def run_forward(self):
+    def run_forward(self, speed: float | None = None):
         """ Runs the two throttle motors """
-        self._front_motor.run_forward()
-        self._back_motor.run_forward()
+        self._front_motor.run_forward(speed)
+        self._back_motor.run_forward(speed)
 
     def close(self):
         """ Turns all the motors off frees the pins """

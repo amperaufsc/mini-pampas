@@ -4,8 +4,8 @@ class ThrottleMotor:
 
         self.stop()
 
-    def run_forward(self, speed: float = 0.4729):
-        """ Runs the Throttle motor on the given speed. The speed must be between 0.0 and 1.0. I none speed is given, the function uses 0.4729"""
+    def run_forward(self, speed: float = 0.0):
+        """ Runs the Throttle motor on the given speed. The speed must be between 0.0 and 1.0. If no speed is given, the function uses 0.0 to stop the motor"""
         self._motor.forward(speed=max(0.0, min(speed, 1.0)))
 
     def stop(self):
