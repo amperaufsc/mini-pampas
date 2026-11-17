@@ -24,7 +24,6 @@ class ControlNode(Node):
 
     def _declare_parameter(self):
         self.declare_parameter('front_servo_pin', 17)
-        self.declare_parameter('back_servo_pin', 18)
         self.declare_parameter('front_motor_forward_pin', 19)
         self.declare_parameter('front_motor_backward_pin', 20)
         self.declare_parameter('back_motor_forward_pin', 21)
@@ -34,7 +33,6 @@ class ControlNode(Node):
     def _make_control(self):
         return Control(
             front_servo_pin=self.get_parameter('front_servo_pin').value,
-            back_servo_pin=self.get_parameter('back_servo_pin').value,
             front_motor_forward_pin=self.get_parameter('front_motor_forward_pin').value,
             front_motor_backward_pin=self.get_parameter('front_motor_backward_pin').value,
             back_motor_forward_pin=self.get_parameter('back_motor_forward_pin').value,
