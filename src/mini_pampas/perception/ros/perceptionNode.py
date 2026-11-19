@@ -11,11 +11,10 @@ class PerceptionNode(Node):
 
         # Subtask 2: Expose configurable ROS parameters for filtering ranges,
         # angle limits, and clustering thresholds.
-        #distance is measured in meters, angle is measured in radians
         self.declare_parameter('min_range', 0.15)
         self.declare_parameter('max_range', 4.00)
-        self.declare_parameter('min_angle', -math.pi / 2)
-        self.declare_parameter('max_angle', math.pi / 2)
+        self.declare_parameter('min_angle', math.pi / 2) # +90 deg
+        self.declare_parameter('max_angle', -math.pi / 2) # -90 deg
         self.declare_parameter('cluster_thresh', 0.20)
         self.declare_parameter('min_cluster_pts', 2)
         self.declare_parameter('max_cluster_pts', 35)
@@ -54,7 +53,10 @@ class PerceptionNode(Node):
         angle = msg.angle_min
 
         for r in msg.ranges:
-            if min_a <= angle <= max_a:
+            # Handle both normal ranges [-pi/2, pi/2] and wrapped ranges [pi/2, -pi/2]
+            in_angle = (min_a <= angle <= max_a) if (min_a <= max_a) else (angle >= min_a or angle <= max_a)
+
+            if in_angle:
                 if min_r <= r <= max_r and not math.isinf(r) and not math.isnan(r):
                     x = r * math.cos(angle)
                     y = r * math.sin(angle)
@@ -82,6 +84,14 @@ class PerceptionNode(Node):
         if current_cluster:
             clusters.append(current_cluster)
 
+        # Merge first and last cluster if a cone straddles the -pi / +pi boundary
+        if len(clusters) > 1:
+            first_pt = clusters[0][0]
+            last_pt = clusters[-1][-1]
+            if math.hypot(first_pt[0] - last_pt[0], first_pt[1] - last_pt[1]) <= cluster_thresh:
+                clusters[0] = clusters[-1] + clusters[0]
+                clusters.pop()
+                
         # 4. Filter clusters by size and compute centroids
         out_msg = PoseArray()
         out_msg.header = msg.header
