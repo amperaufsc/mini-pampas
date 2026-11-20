@@ -1,6 +1,6 @@
 from gpiozero import AngularServo, Motor
-from mini_pampas.control.steering_motor import SteeringMotor
-from mini_pampas.control.throttle_motor import ThrottleMotor
+from control_package.control import SteeringMotor
+from control_package.control import ThrottleMotor
 
 class Control:
     SERVO_ANGLE_MIN = -25

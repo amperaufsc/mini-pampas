@@ -4,7 +4,7 @@ import math
 
 from ackermann_msgs.msg import AckermannDrive
 from geometry_msgs.msg import PointStamped
-from mini_pampas.control.control import Control
+from control_package.control import Control
 
 class ControlNode(Node):
     def __init__(self):
