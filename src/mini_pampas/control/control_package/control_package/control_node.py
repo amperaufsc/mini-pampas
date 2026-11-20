@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 import math
 
-from mini_pampas_msgs.msg import DriveCommand
+from ackermann_msgs.msg import AckermannDrive
 from geometry_msg.msg import PointStamped
 from mini_pampas.control.control import Control
 
@@ -14,7 +14,7 @@ class ControlNode(Node):
 
         self._control = self._make_control()
 
-        self._publisher = self.create_publisher(DriveCommand, '/cmd/drive', 10)
+        self._publisher = self.create_publisher(AckermannDrive, '/cmd/drive', 10)
         self._subscription = self.create_subscription(
             PointStamped,
             '/planning/target_point',
@@ -40,13 +40,17 @@ class ControlNode(Node):
         )
 
     def _publish_command(self, throttle_speed, car_direction):
-        msg = DriveCommand()
+        msg = AckermannDrive()
 
         car_direction = max(-25.0, min(car_direction, 25.0))
         msg.steering_angle = (math.radians(car_direction) * -1)
 
         throttle_speed = max(0.0, min(throttle_speed, 1.0))
-        msg.throttle = throttle_speed
+        msg.speed = throttle_speed
+
+        msg.steering_angle_velocity = 0.0
+        msg.acceleration = 0.0
+        msg.jerk = 0.0
 
         self._publisher.publish(msg)
 
