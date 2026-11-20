@@ -10,9 +10,9 @@ Cluster = List[Point2D]
 class DetectorConfig:
     # Basic filtering & clustering
     min_r: float = 0.15
-    max_r: float = 2
-    min_a: float = math.pi / 2
-    max_a: float = -math.pi / 2
+    max_r: float = 3
+    min_a: float = -math.pi / 2
+    max_a: float = math.pi / 2
     cluster_thresh: float = 0.20
     min_pts: int = 2
     max_pts: int = 35
@@ -20,7 +20,7 @@ class DetectorConfig:
 
     # 1. Surface Centroid Bias & 2. Distance-Adaptive Min Points
     cone_radius: float = 0.045          # Standard small traffic cone base radius (~7.5 cm)
-    expected_beam_ratio: float = 0.35   # Require at least 35% of theoretical beam hits
+    expected_beam_ratio: float = 0.25   # Require at least 35% of theoretical beam hits
 
     # 3. Geometric Shape Check
     max_depth: float = 0.18             # Max radial depth of a cluster (m)
@@ -29,8 +29,8 @@ class DetectorConfig:
     # 4. Temporal Filtering / Multi-Frame Tracking
     enable_tracking: bool = True
     assoc_dist: float = 0.30            # Max distance (m) to match cone between frames
-    min_hits: int = 2                   # Frames required to confirm and publish a cone (must be adjusted for LiDAR frame rate)
-    max_misses: int = 1                 # Consecutive missed frames before deleting track (must be adjusted for LiDAR frame rate)
+    min_hits: int = 1                   # Frames required to confirm and publish a cone (must be adjusted for LiDAR frame rate)
+    max_misses: int = 4                 # Consecutive missed frames before deleting track (must be adjusted for LiDAR frame rate)
     ema_alpha: float = 0.85             # Position smoothing factor (1.0 = no smoothing)
 
 
@@ -161,17 +161,16 @@ class ConeDetector:
     @staticmethod
     def _passes_adaptive_min_pts(
         num_pts: int, dist: float, angle_inc: float, cfg: DetectorConfig
-    ) -> bool:
-        """Computes expected beam hits at distance `dist` and rejects sparse close-range noise."""
+        ) -> bool:
+        """Computes expected beam hits at distance `dist` and rejects sparse noise."""
         if angle_inc <= 1e-6:
             return num_pts >= cfg.min_pts
 
-        cone_diameter = 2.0 * cfg.cone_radius
-        subtended_angle = cone_diameter / dist
+        # Exact angular width of a cylinder of radius R at distance dist
+        subtended_angle = 2.0 * math.atan2(cfg.cone_radius, dist)
         expected_beams = subtended_angle / angle_inc
 
         adaptive_min = max(cfg.min_pts, int(math.floor(expected_beams * cfg.expected_beam_ratio)))
-        # Cap adaptive_min at max_pts so very close cones aren't impossibly strict
         adaptive_min = min(adaptive_min, cfg.max_pts)
 
         return num_pts >= adaptive_min

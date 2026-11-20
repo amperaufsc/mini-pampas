@@ -1,38 +1,40 @@
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
+from launch.actions import ExecuteProcess, TimerAction
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
+    sllidar = Node(
+        package='sllidar_ros2',
+        executable='sllidar_node',
+        name='sllidar_node',
+        output='screen',
+        respawn=True,
+        respawn_delay=1.5,
+        parameters=[{
+            'channel_type': 'serial',
+            'serial_port': '/dev/ttyACM0',
+            'serial_baudrate': 115200,
+            'frame_id': 'laser_frame',
+            'inverted': False,
+            'angle_compensate': True,
+        }],
+    )
+
+    perception = ExecuteProcess(
+        cmd=[
+            '/usr/bin/python3',
+            '/mini_pampas/src/mini_pampas/perception/ros/perceptionNode.py',
+            '--ros-args',
+            '-p', 'min_range:=0.15',
+            '-p', 'max_range:=1.00',
+            '-p', 'cluster_thresh:=0.20',
+            '-p', 'max_cone_width:=0.20',
+        ],
+        output='screen',
+    )
+
     return LaunchDescription([
-        # 1. RPLIDAR Driver (Standard ROS 2 package)
-        Node(
-            package='rplidar_ros',
-            executable='rplidar_node',
-            name='rplidar_node',
-            output='screen',
-            parameters=[{
-                'serial_port': '/dev/ttyACM0',
-                'serial_baudrate': 115200,
-                'frame_id': 'laser_frame',
-                'inverted': False,
-                'angle_compensate': True,
-            }],
-        ),
-        # 2. Perception Node (Managed by uv / pyproject.toml)
-        ExecuteProcess(
-            cmd=[
-                '/opt/venv/bin/perception',
-                '--ros-args',
-                '-p',
-                'min_range:=0.15',
-                '-p',
-                'max_range:=4.00',
-                '-p',
-                'cluster_thresh:=0.20',
-                '-p',
-                'max_cone_width:=0.30',
-            ],
-            output='screen',
-        ),
+        sllidar,
+        TimerAction(period=3.0, actions=[perception]),
     ])

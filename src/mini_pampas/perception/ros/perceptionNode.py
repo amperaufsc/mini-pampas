@@ -43,28 +43,28 @@ class PerceptionNode(Node):
 
     def _init_parameters(self) -> None:
         # Base parameters
-        self.declare_parameter('min_range', 0.15)
-        self.declare_parameter('max_range', 2.00)
-        self.declare_parameter('min_angle', math.pi / 2)
-        self.declare_parameter('max_angle', -math.pi / 2)
-        self.declare_parameter('cluster_thresh', 0.12)
+        self.declare_parameter('min_range', 0.05)       # Don't clip ultra-close cones (<15 cm)
+        self.declare_parameter('max_range', 1.50)
+        self.declare_parameter('min_angle', -math.pi)   # Avoid clipping cones near -pi/2 boundary
+        self.declare_parameter('max_angle', math.pi)
+        self.declare_parameter('cluster_thresh', 0.08)
         self.declare_parameter('min_cluster_pts', 2)
-        self.declare_parameter('max_cluster_pts', 35)
-        self.declare_parameter('max_cone_width', 0.20) # Needs to be measured and adjusted (smaller value is expected)
+        self.declare_parameter('max_cluster_pts', 60)   # High beam density at close range
+        self.declare_parameter('max_cone_width', 0.20)
 
         # Upgrade 1 & 2 parameters
-        self.declare_parameter('cone_radius', 0.045) # Needs to be measured and adjusted (smaller value is expected)
-        self.declare_parameter('expected_beam_ratio', 0.35)
+        self.declare_parameter('cone_radius', 0.045)
+        self.declare_parameter('expected_beam_ratio', 0.10) # Lowered from 0.35 for partially occluded cones
 
         # Upgrade 3 parameters (Geometric Shape Check)
         self.declare_parameter('max_cone_depth', 0.18)
-        self.declare_parameter('convexity_tol', 0.025)
+        self.declare_parameter('convexity_tol', 0.04)
 
-        # Upgrade 4 parameters (Temporal Tracking)
+        # Upgrade 4 parameters (Temporal Tracking - match DetectorConfig!)
         self.declare_parameter('enable_tracking', True)
         self.declare_parameter('assoc_dist', 0.30)
-        self.declare_parameter('min_hits', 2)
-        self.declare_parameter('max_misses', 1)
+        self.declare_parameter('min_hits', 1)
+        self.declare_parameter('max_misses', 4)
         self.declare_parameter('ema_alpha', 0.85)
 
     def _load_config(self) -> DetectorConfig:
