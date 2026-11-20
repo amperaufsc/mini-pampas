@@ -8,6 +8,10 @@ services:
     container_name: mini-pampas
     stdin_open: true
     tty: true
+    privileged: true
+    network_mode: host
+    security_opt:
+      - label:disable
 
     build:
       context: .
@@ -19,10 +23,10 @@ services:
 
     volumes:
       - .:/mini_pampas   # matches WORKDIR in the Dockerfile
+      - /dev:/dev        # passes through USB serial devices + allows hot-plugging
 
     develop:
       watch:
-        # Automatically rebuild on updates to these files
         - action: rebuild
           path: ./pyproject.toml
         - action: rebuild
