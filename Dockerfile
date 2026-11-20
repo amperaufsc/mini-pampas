@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
     python3-colcon-common-extensions \
+    ros-humble-foxglove-bridge \
     ros-humble-turtlesim \
     ros-humble-rqt ros-humble-rqt-common-plugins \
     qt6-wayland \
