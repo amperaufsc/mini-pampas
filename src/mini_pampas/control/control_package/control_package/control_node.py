@@ -3,7 +3,7 @@ from rclpy.node import Node
 import math
 
 from ackermann_msgs.msg import AckermannDrive
-from geometry_msg.msg import PointStamped
+from geometry_msg.msgs import PointStamped
 from mini_pampas.control.control import Control
 
 class ControlNode(Node):
