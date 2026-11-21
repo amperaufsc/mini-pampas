@@ -10,7 +10,7 @@ Cluster = List[Point2D]
 class DetectorConfig:
     # Basic filtering & clustering
     min_r: float = 0.15
-    max_r: float = 3
+    max_r: float = 3.0
     min_a: float = -math.pi / 2
     max_a: float = math.pi / 2
     cluster_thresh: float = 0.20
@@ -26,28 +26,10 @@ class DetectorConfig:
     max_depth: float = 0.18             # Max radial depth of a cluster (m)
     convexity_tol: float = 0.025        # Tolerance (m) for middle points protruding toward sensor
 
-    # 4. Temporal Filtering / Multi-Frame Tracking
-    enable_tracking: bool = True
-    assoc_dist: float = 0.30            # Max distance (m) to match cone between frames
-    min_hits: int = 1                   # Frames required to confirm and publish a cone (must be adjusted for LiDAR frame rate)
-    max_misses: int = 4                 # Consecutive missed frames before deleting track (must be adjusted for LiDAR frame rate)
-    ema_alpha: float = 0.85             # Position smoothing factor (1.0 = no smoothing)
-
-
-@dataclass
-class TrackedCone:
-    x: float
-    y: float
-    hits: int = 1
-    misses: int = 0
-    confirmed: bool = False
-
 
 class ConeDetector:
-    """Stateful 2D LiDAR cone detector with shape validation and multi-frame tracking."""
+    """Stateless 2D LiDAR cone detector with shape validation and surface centroid bias correction."""
 
-    def __init__(self) -> None:
-        self._tracks: List[TrackedCone] = []
 
     def process_scan(
         self,
@@ -56,7 +38,7 @@ class ConeDetector:
         angle_increment: float,
         cfg: DetectorConfig
     ) -> List[Point2D]:
-        """Full perception pipeline: returns confirmed, bias-corrected (x, y) cone centers."""
+        """Full perception pipeline: returns bias-corrected (x, y) cone centers."""
         # Step 1: Filter & project polar scan to Cartesian (x, y)
         points = self._filter_and_project(ranges, angle_min, angle_increment, cfg)
 
@@ -66,9 +48,6 @@ class ConeDetector:
         # Step 3: Adaptive count check, geometric shape filter, and surface bias correction
         raw_centroids = self._extract_and_validate_cones(clusters, abs(angle_increment), cfg)
 
-        # Step 4: Multi-frame temporal tracking
-        if cfg.enable_tracking:
-            return self._update_tracker(raw_centroids, cfg)
         return raw_centroids
 
     # =========================================================================
@@ -144,7 +123,7 @@ class ConeDetector:
         return valid_cones
 
     # =========================================================================
-    # Upgrade Helpers (1, 2, 3, 4)
+    # Upgrade Helpers (1, 2, 3)
     # =========================================================================
 
     @staticmethod
@@ -223,66 +202,7 @@ class ConeDetector:
 
         return True
 
-    def _update_tracker(
-        self, detections: List[Point2D], cfg: DetectorConfig
-    ) -> List[Point2D]:
-        """Associates new detections with existing tracks using greedy nearest-neighbor matching."""
-        unmatched_tracks = set(range(len(self._tracks)))
-        unmatched_dets = set(range(len(detections)))
-
-        # Build all candidate pairs within assoc_dist
-        pairs: List[Tuple[float, int, int]] = []
-        for t_idx, track in enumerate(self._tracks):
-            for d_idx, det in enumerate(detections):
-                d = math.hypot(track.x - det[0], track.y - det[1])
-                if d <= cfg.assoc_dist:
-                    pairs.append((d, t_idx, d_idx))
-
-        # Sort by shortest distance first
-        pairs.sort(key=lambda item: item[0])
-
-        for _, t_idx, d_idx in pairs:
-            if t_idx in unmatched_tracks and d_idx in unmatched_dets:
-                track = self._tracks[t_idx]
-                det_x, det_y = detections[d_idx]
-
-                # Exponential Moving Average (EMA) position update
-                a = cfg.ema_alpha
-                track.x = a * det_x + (1.0 - a) * track.x
-                track.y = a * det_y + (1.0 - a) * track.y
-                track.hits += 1
-                track.misses = 0
-                if track.hits >= cfg.min_hits:
-                    track.confirmed = True
-
-                unmatched_tracks.remove(t_idx)
-                unmatched_dets.remove(d_idx)
-
-        # Increment misses on unmatched existing tracks and prune dead tracks
-        surviving_tracks: List[TrackedCone] = []
-        for t_idx, track in enumerate(self._tracks):
-            if t_idx in unmatched_tracks:
-                track.misses += 1
-            if track.misses <= cfg.max_misses:
-                surviving_tracks.append(track)
-
-        # Spawn tentative tracks for unmatched new detections
-        for d_idx in unmatched_dets:
-            det_x, det_y = detections[d_idx]
-            surviving_tracks.append(
-                TrackedCone(
-                    x=det_x,
-                    y=det_y,
-                    hits=1,
-                    misses=0,
-                    confirmed=(cfg.min_hits <= 1)
-                )
-            )
-
-        self._tracks = surviving_tracks
-
-        # Return only confirmed tracks
-        return [(t.x, t.y) for t in self._tracks if t.confirmed]
+    
 
     # =========================================================================
     # Low-Level Static Math Helpers
