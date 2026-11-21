@@ -23,7 +23,7 @@ services:
 
     volumes:
       - .:/mini_pampas   # matches WORKDIR in the Dockerfile
-      - /dev:/dev        # passes through USB serial devices + allows hot-plugging
+      - /dev:/dev        # pass USB devices (LiDAR) dynamically into the container
 
     develop:
       watch:

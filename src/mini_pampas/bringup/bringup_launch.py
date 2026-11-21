@@ -16,9 +16,9 @@ def generate_launch_description():
             'serial_port': '/dev/ttyACM0',
             'serial_baudrate': 115200,
             'frame_id': 'laser_frame',
-            'inverted': True, #LiDAR is mounted upside down; flips scan so +y stays left
+            'inverted': True,  # LiDAR is mounted upside down; flips scan so +y stays left
             'angle_compensate': True,
-            'scan_mode': ''
+            'scan_mode': '',
         }],
     )
 
