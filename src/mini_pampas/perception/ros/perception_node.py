@@ -8,11 +8,7 @@ from rcl_interfaces.msg import SetParametersResult
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Pose, PoseArray
 
-try:
-    from .coneDetector import ConeDetector, DetectorConfig
-except ImportError:
-    from coneDetector import ConeDetector, DetectorConfig
-
+from perception import ConeDetector, DetectorConfig
 
 class PerceptionNode(Node):
     def __init__(self) -> None:
@@ -98,4 +94,46 @@ class PerceptionNode(Node):
             elif p.name == 'cone_radius':
                 self.cfg.cone_radius = p.value
             elif p.name == 'expected_beam_ratio':
-                self.cfg.
+                self.cfg.expected_beam_ratio = p.value
+            elif p.name == 'max_cone_depth':
+                self.cfg.max_depth = p.value
+            elif p.name == 'convexity_tol':
+                self.cfg.convexity_tol = p.value
+        return SetParametersResult(successful=True)
+
+    def scan_callback(self, msg: LaserScan) -> None:
+        cones = self.detector.process_scan(
+            msg.ranges,
+            msg.angle_min,
+            msg.angle_increment,
+            self.cfg
+        )
+
+        pose_array = PoseArray()
+        pose_array.header = msg.header
+        for cx, cy in cones:
+            pose = Pose()
+            pose.position.x = float(cx)
+            pose.position.y = float(cy)
+            pose.position.z = 0.0
+            pose.orientation.w = 1.0
+            pose_array.poses.append(pose)
+
+        self.cones_pub.publish(pose_array)
+
+
+def main(args=None) -> None:
+    rclpy.init(args=args)
+    node = PerceptionNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

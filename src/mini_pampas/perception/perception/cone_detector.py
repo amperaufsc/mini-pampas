@@ -19,8 +19,8 @@ class DetectorConfig:
     max_w: float = 0.30
 
     # 1. Surface Centroid Bias & 2. Distance-Adaptive Min Points
-    cone_radius: float = 0.045          # Standard small traffic cone base radius (~7.5 cm)
-    expected_beam_ratio: float = 0.25   # Require at least 35% of theoretical beam hits
+    cone_radius: float = 0.045          # radius of cone section intersected by LiDAR plane (m)
+    expected_beam_ratio: float = 0.25   # Require at least 25% of theoretical beam hits
 
     # 3. Geometric Shape Check
     max_depth: float = 0.18             # Max radial depth of a cluster (m)
@@ -82,11 +82,6 @@ class ConeDetector:
 
         if current:
             clusters.append(current)
-
-        # Merge across -pi / +pi boundary
-        if len(clusters) > 1 and self._dist(clusters[0][0], clusters[-1][-1]) <= thresh:
-            clusters[0] = clusters[-1] + clusters[0]
-            clusters.pop()
 
         return clusters
 
