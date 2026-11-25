@@ -28,7 +28,7 @@ def generate_launch_description():
             '/mini_pampas/src/mini_pampas/perception/ros/perceptionNode.py',
             '--ros-args',
             '-p', 'min_range:=0.15',
-            '-p', 'max_range:=0.5',
+            '-p', 'max_range:=1.0',
             '-p', 'cluster_thresh:=0.20',
             '-p', 'max_cone_width:=0.20',
         ],
