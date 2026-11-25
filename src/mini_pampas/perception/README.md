@@ -38,9 +38,9 @@ perception
 
 Following standard ROS 2 and Object-Oriented Programming (OOP) practices, core detection algorithms are decoupled from ROS 2 middleware communication.
 
-- cone_detector.py: Framework-agnostic class (ConeDetector) that accepts raw range/angle arrays and thresholds, returning structured cone detections. Decoupled from ROS for straightforward unit testing.
+- cone_detector.py: Framework-agnostic class that accepts raw range/angle arrays and thresholds, returning structured cone detections. Decoupled from ROS for straightforward unit testing.
 
-- perception_node.py: Thin ROS 2 wrapper (PerceptionNode) that subscribes to /scan, passes scan data to ConeDetector, and publishes detected cone positions and visualization markers.
+- perception_node.py: Thin ROS 2 wrapper that subscribes to /scan, passes scan data to ConeDetector, and publishes detected cone positions 
 
 ## ROS 2 interfaces
 
