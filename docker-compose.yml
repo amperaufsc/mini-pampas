@@ -9,12 +9,12 @@ services:
     stdin_open: true
     tty: true
     privileged: true
+    network_mode: host
+    security_opt:
+      - label:disable
 
     build:
       context: .
-
-    ports:
-      - "8765:8765"   # Foxglove Bridge WebSocket port
 
     environment:
       - ROS_DOMAIN_ID=67
@@ -27,7 +27,6 @@ services:
 
     develop:
       watch:
-        # Automatically rebuild on updates to these files
         - action: rebuild
           path: ./pyproject.toml
         - action: rebuild
