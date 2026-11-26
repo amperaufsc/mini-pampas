@@ -68,6 +68,7 @@ class ControlNode(Node):
             self._control.run_forward(speed)
         else:
             self._control.stop_car()
+            speed = 0.0
         direction = self._get_direction(x, y)
         self._control.set_car_direction(direction)
 

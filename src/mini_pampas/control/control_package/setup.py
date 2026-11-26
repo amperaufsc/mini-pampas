@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'control_node = control_package.control_node:main'
+            'control_node = control_package.control_node:main',
+            'teleop_control_node = control_pacakge.teleop_control:main'
         ],
     },
 )
